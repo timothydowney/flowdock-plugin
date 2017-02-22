@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import com.flowdock.jenkins.exception.FlowdockException;
 
 public class FlowdockAPI {
-	private static final Logger LOGGER = Logger.getLogger(FlowdockAPI.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(FlowdockAPI.class.getName());
     private String apiUrl;
     private String flowToken;
 
@@ -98,9 +98,9 @@ public class FlowdockAPI {
         }
     }
 
-	protected HttpURLConnection getConnection(URL url) throws IOException {
-		return (HttpURLConnection)url.openConnection(getProxy());
-	}
+    protected HttpURLConnection getConnection(URL url) throws IOException {
+        return (HttpURLConnection)url.openConnection(getProxy());
+    }
 
     /**
      * Returns the Jenkins proxy configuration. {@link Proxy#NO_PROXY} if none configured.
