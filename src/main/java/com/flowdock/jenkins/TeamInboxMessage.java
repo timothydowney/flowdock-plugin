@@ -18,10 +18,10 @@ import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 public class TeamInboxMessage extends FlowdockMessage {
 
     /*
-     * Default sender email addresses for displaying Gravatar icons in build
-     * notification based on the build status. You can also setup your own email
-     * addresses and configure custom Gravatar icons for them.
-     */
+        Default sender email addresses for displaying Gravatar icons in build
+        notification based on the build status. You can also setup your own email
+        addresses and configure custom Gravatar icons for them.
+    */
     public static final String FLOWDOCK_BUILD_OK_EMAIL = "build+ok@flowdock.com";
     public static final String FLOWDOCK_BUILD_FAIL_EMAIL = "build+fail@flowdock.com";
 
@@ -75,13 +75,12 @@ public class TeamInboxMessage extends FlowdockMessage {
         return postData.toString();
     }
 
-    public static TeamInboxMessage fromBuild(Jenkins jenkins, AbstractBuild build, BuildResult buildResult,
-            BuildListener listener) throws IOException, InterruptedException {
+    public static TeamInboxMessage fromBuild(Jenkins jenkins, AbstractBuild build, BuildResult buildResult, BuildListener listener) throws IOException, InterruptedException {
         TeamInboxMessage msg = new TeamInboxMessage();
 
         String projectName = "";
         String configuration = "";
-        if (build.getProject().getRootProject() != build.getProject()) {
+        if(build.getProject().getRootProject() != build.getProject()) {
             projectName = build.getProject().getRootProject().getDisplayName();
             configuration = " on " + build.getProject().getDisplayName();
         } else {
@@ -94,37 +93,37 @@ public class TeamInboxMessage extends FlowdockMessage {
 
         String rootUrl = jenkins.getRootUrl();
         String buildLink = (rootUrl == null) ? null : rootUrl + build.getUrl();
-        if (buildLink != null)
-            msg.setLink(buildLink);
+        if(buildLink != null) msg.setLink(buildLink);
 
-        if (build.getResult().isWorseThan(Result.SUCCESS))
+        if(build.getResult().isWorseThan(Result.SUCCESS))
             msg.setFromAddress(FLOWDOCK_BUILD_FAIL_EMAIL);
 
         StringBuilder content = new StringBuilder();
         content.append("<h3>").append(projectName).append("</h3>");
         content.append("Build: ").append(build.getDisplayName()).append("<br />");
         content.append("Result: <strong>").append(buildResult.toString()).append("</strong><br />");
-        if (buildLink != null)
-            content.append("URL: <a href=\"").append(buildLink).append("\">").append(build.getFullDisplayName())
-                    .append("</a>").append("<br />");
+        if(buildLink != null)
+            content.append("URL: <a href=\"").append(buildLink).append("\">").append(build.getFullDisplayName()).append("</a>").append("<br />");
 
         EnvVars envVars = build.getEnvironment(listener);
         String vcsInfo = versionControlVariableList(envVars);
-        if (vcsInfo.length() > 0) {
+        if(vcsInfo.length() > 0) {
             content.append("<br /><strong>Version control:</strong><br />");
             content.append(vcsInfo);
             content.append("<br/>");
         }
 
         List<Entry> commits = parseCommits(build);
-        if (commits != null) {
+        if(commits != null) {
             content.append("<h3>Changes</h3><div class=\"commits\"><ul class=\"commit-list clean\">");
-            for (Entry commit : commits) {
+            for(Entry commit : commits) {
                 content.append("<li class=\"commit\"><span class=\"commit-details\">");
-                content.append("<span class=\"author-info\">").append("<span>").append(commit.getAuthor())
-                        .append("</span>").append("</span> &nbsp;");
-                content.append("<span title=\"" + commitId(commit) + "\" class=\"commit-sha\">")
-                        .append(commitId(commit, 7)).append("</span> &nbsp;");
+                content.append("<span class=\"author-info\">").
+                    append("<span>").append(commit.getAuthor()).append("</span>").
+                append("</span> &nbsp;");
+                content.append("<span title=\"" + commitId(commit) + "\" class=\"commit-sha\">").
+                    append(commitId(commit, 7)).
+                append("</span> &nbsp;");
                 content.append("<span class=\"commit-message\">").append(escapeHtml(commit.getMsg())).append("</span>");
                 content.append("</span></li>");
             }
@@ -138,7 +137,7 @@ public class TeamInboxMessage extends FlowdockMessage {
 
     public static List<Entry> parseCommits(AbstractBuild build) {
         final ChangeLogSet<? extends Entry> cs = build.getChangeSet();
-        if (cs == null || cs.isEmptySet())
+        if(cs == null || cs.isEmptySet())
             return null;
 
         List<Entry> commits = new ArrayList();
@@ -150,32 +149,32 @@ public class TeamInboxMessage extends FlowdockMessage {
     }
 
     private static String commitId(Entry commit) {
-        String id = commit.getCommitId();
-        if (id == null) {
-            return "unknown";
-        } else {
-            return id;
-        }
+      String id = commit.getCommitId();
+      if (id == null) {
+        return "unknown";
+      } else {
+        return id;
+      }
     }
 
     private static String commitId(Entry commit, int length) {
-        String id = commitId(commit);
-        return id.substring(0, Math.min(length, id.length()));
+      String id = commitId(commit);
+      return id.substring(0, Math.min(length, id.length()));
     }
 
     private static String versionControlVariableList(EnvVars envVars) {
         StringBuilder envList = new StringBuilder();
 
-        if (envVars.get("GIT_BRANCH") != null) {
+        if(envVars.get("GIT_BRANCH") != null) {
             envList.append("Git branch: ").append(envVars.get("GIT_BRANCH")).append("<br/>");
         }
-        if (envVars.get("GIT_URL") != null) {
+        if(envVars.get("GIT_URL") != null) {
             envList.append("Git URL: ").append(envVars.get("GIT_URL")).append("<br/>");
         }
-        if (envVars.get("SVN_REVISION") != null) {
+        if(envVars.get("SVN_REVISION") != null) {
             envList.append("SVN revision: ").append(envVars.get("SVN_REVISION")).append("<br/>");
         }
-        if (envVars.get("SVN_URL") != null) {
+        if(envVars.get("SVN_URL") != null) {
             envList.append("SVN URL: ").append(envVars.get("SVN_URL")).append("<br/>");
         }
 

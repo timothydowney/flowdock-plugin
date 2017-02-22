@@ -24,98 +24,98 @@ import com.flowdock.jenkins.exception.FlowdockException;
  */
 public class FlowdockAPITest {
 
-    @Mock
-    private HttpURLConnection connection;
+	@Mock
+	private HttpURLConnection connection;
+	
+	private String url = "http://localhost";
+	
+	private String token = "the token";
 
-    private String url = "http://localhost";
+	private FlowdockAPI api;
+	
+	@Mock
+	private TeamInboxMessage teamInboxMessage;
+	
+	@Mock
+	private ChatMessage chatMessage;
+	
+	private ByteArrayOutputStream outputStream;
+	
+	@Before
+	public void setup() throws Exception {
+		MockitoAnnotations.initMocks(this);
+		
+		outputStream = new ByteArrayOutputStream();
 
-    private String token = "the token";
+		api = new FlowdockAPI(url, token) {
+			@Override
+			protected HttpURLConnection getConnection(URL url) throws IOException {
+				assertTrue(url.toString().startsWith("http://localhost"));
+				return connection;
+			}
+		};
 
-    private FlowdockAPI api;
+		when(teamInboxMessage.asPostData()).thenReturn("team-message");
+		when(chatMessage.asPostData()).thenReturn("chat-message");
+		
+		when(connection.getOutputStream()).thenReturn(outputStream);
+	}
+	
+	@Test
+	public void testPushTeamInboxMessageSuccess() throws Exception {
+		api = new FlowdockAPI(url, token) {
+			@Override
+			protected HttpURLConnection getConnection(URL url) throws IOException {
+				assertEquals("http://localhost/messages/team_inbox/thetoken", url.toString());
+				return connection;
+			}
+		};
+		
+		when(connection.getResponseCode()).thenReturn(200);
+		
+		api.pushTeamInboxMessage(teamInboxMessage);
+		
+		verify(connection).setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+		verify(connection).setRequestProperty("Content-Length", String.valueOf("team-message".length()));
+		verify(connection).setRequestMethod("POST");
 
-    @Mock
-    private TeamInboxMessage teamInboxMessage;
+		assertEquals(teamInboxMessage.asPostData(), new String(outputStream.toByteArray(), "UTF-8"));
+	}
 
-    @Mock
-    private ChatMessage chatMessage;
+	@Test
+	public void testPushChatMessageSuccess() throws Exception {
+		api = new FlowdockAPI(url, token) {
+			@Override
+			protected HttpURLConnection getConnection(URL url) throws IOException {
+				assertEquals("http://localhost/messages/chat/thetoken", url.toString());
+				return connection;
+			}
+		};
+		
+		when(connection.getResponseCode()).thenReturn(200);
+		
+		api.pushChatMessage(chatMessage);
+		
+		verify(connection).setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+		verify(connection).setRequestProperty("Content-Length", String.valueOf("chat-message".length()));
+		verify(connection).setRequestMethod("POST");
 
-    private ByteArrayOutputStream outputStream;
-
-    @Before
-    public void setup() throws Exception {
-        MockitoAnnotations.initMocks(this);
-
-        outputStream = new ByteArrayOutputStream();
-
-        api = new FlowdockAPI(url, token) {
-            @Override
-            protected HttpURLConnection getConnection(URL url) throws IOException {
-                assertTrue(url.toString().startsWith("http://localhost"));
-                return connection;
-            }
-        };
-
-        when(teamInboxMessage.asPostData()).thenReturn("team-message");
-        when(chatMessage.asPostData()).thenReturn("chat-message");
-
-        when(connection.getOutputStream()).thenReturn(outputStream);
-    }
-
-    @Test
-    public void testPushTeamInboxMessageSuccess() throws Exception {
-        api = new FlowdockAPI(url, token) {
-            @Override
-            protected HttpURLConnection getConnection(URL url) throws IOException {
-                assertEquals("http://localhost/messages/team_inbox/thetoken", url.toString());
-                return connection;
-            }
-        };
-
-        when(connection.getResponseCode()).thenReturn(200);
-
-        api.pushTeamInboxMessage(teamInboxMessage);
-
-        verify(connection).setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        verify(connection).setRequestProperty("Content-Length", String.valueOf("team-message".length()));
-        verify(connection).setRequestMethod("POST");
-
-        assertEquals(teamInboxMessage.asPostData(), new String(outputStream.toByteArray(), "UTF-8"));
-    }
-
-    @Test
-    public void testPushChatMessageSuccess() throws Exception {
-        api = new FlowdockAPI(url, token) {
-            @Override
-            protected HttpURLConnection getConnection(URL url) throws IOException {
-                assertEquals("http://localhost/messages/chat/thetoken", url.toString());
-                return connection;
-            }
-        };
-
-        when(connection.getResponseCode()).thenReturn(200);
-
-        api.pushChatMessage(chatMessage);
-
-        verify(connection).setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        verify(connection).setRequestProperty("Content-Length", String.valueOf("chat-message".length()));
-        verify(connection).setRequestMethod("POST");
-
-        assertEquals(chatMessage.asPostData(), new String(outputStream.toByteArray(), "UTF-8"));
-    }
-
-    @Test(expected = FlowdockException.class)
-    public void testPushTeamInboxMessageFailure() throws Exception {
-        api = new FlowdockAPI(url, token) {
-            @Override
-            protected HttpURLConnection getConnection(URL url) throws IOException {
-                assertEquals("http://localhost/messages/team_inbox/thetoken", url.toString());
-                return connection;
-            }
-        };
-
-        when(connection.getResponseCode()).thenReturn(500);
-
-        api.pushTeamInboxMessage(teamInboxMessage);
-    }
-
+		assertEquals(chatMessage.asPostData(), new String(outputStream.toByteArray(), "UTF-8"));
+	}
+	
+	@Test(expected=FlowdockException.class)
+	public void testPushTeamInboxMessageFailure() throws Exception {
+		api = new FlowdockAPI(url, token) {
+			@Override
+			protected HttpURLConnection getConnection(URL url) throws IOException {
+				assertEquals("http://localhost/messages/team_inbox/thetoken", url.toString());
+				return connection;
+			}
+		};
+		
+		when(connection.getResponseCode()).thenReturn(500);
+		
+		api.pushTeamInboxMessage(teamInboxMessage);
+	}
+	
 }

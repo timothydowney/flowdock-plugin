@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import com.flowdock.jenkins.exception.FlowdockException;
 
 public class FlowdockAPI {
-    private static final Logger LOGGER = Logger.getLogger(FlowdockAPI.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(FlowdockAPI.class.getName());
     private String apiUrl;
     private String flowToken;
 
@@ -38,7 +38,7 @@ public class FlowdockAPI {
     public void pushTeamInboxMessage(TeamInboxMessage msg) throws FlowdockException {
         try {
             doPost("/messages/team_inbox/", msg.asPostData());
-        } catch (UnsupportedEncodingException ex) {
+        } catch(UnsupportedEncodingException ex) {
             throw new FlowdockException("Cannot encode request data: " + ex.getMessage());
         }
     }
@@ -46,7 +46,7 @@ public class FlowdockAPI {
     public void pushChatMessage(ChatMessage msg) throws FlowdockException {
         try {
             doPost("/messages/chat/", msg.asPostData());
-        } catch (UnsupportedEncodingException ex) {
+        } catch(UnsupportedEncodingException ex) {
             throw new FlowdockException("Cannot encode request data: " + ex.getMessage());
         }
     }
@@ -72,7 +72,7 @@ public class FlowdockAPI {
             wr.flush();
             wr.close();
 
-            if (connection.getResponseCode() != 200) {
+            if(connection.getResponseCode() != 200) {
                 StringBuffer responseContent = new StringBuffer();
                 try {
                     BufferedReader in = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
@@ -81,33 +81,31 @@ public class FlowdockAPI {
                         responseContent.append(responseLine);
                     }
                     in.close();
-                } catch (Exception ex) {
+                } catch(Exception ex) {
                     // nothing we can do about this
                 } finally {
-                    throw new FlowdockException("Flowdock returned an error response with status "
-                            + connection.getResponseCode() + " " + connection.getResponseMessage() + ", "
-                            + responseContent.toString() + "\n\nURL: " + flowdockUrl);
+                    throw new FlowdockException("Flowdock returned an error response with status " +
+                    connection.getResponseCode() + " " + connection.getResponseMessage() + ", " +
+                    responseContent.toString() + "\n\nURL: " + flowdockUrl);
                 }
             }
-        } catch (MalformedURLException ex) {
+        } catch(MalformedURLException ex) {
             throw new FlowdockException("Flowdock API URL is invalid: " + flowdockUrl);
-        } catch (ProtocolException ex) {
+        } catch(ProtocolException ex) {
             throw new FlowdockException("ProtocolException in connecting to Flowdock: " + ex.getMessage());
-        } catch (IOException ex) {
+        } catch(IOException ex) {
             throw new FlowdockException("IOException in connecting to Flowdock: " + ex.getMessage());
         }
     }
 
-    protected HttpURLConnection getConnection(URL url) throws IOException {
-        return (HttpURLConnection) url.openConnection(getProxy());
-    }
+	protected HttpURLConnection getConnection(URL url) throws IOException {
+		return (HttpURLConnection)url.openConnection(getProxy());
+	}
 
     /**
-     * Returns the Jenkins proxy configuration. {@link Proxy#NO_PROXY} if none
-     * configured.
+     * Returns the Jenkins proxy configuration. {@link Proxy#NO_PROXY} if none configured.
      * 
-     * @return the Jenkins proxy configuration. {@link Proxy#NO_PROXY} if none
-     *         configured.
+     * @return the Jenkins proxy configuration. {@link Proxy#NO_PROXY} if none configured.
      */
     private Proxy getProxy() {
         Proxy proxy = null;
@@ -122,17 +120,15 @@ public class FlowdockAPI {
             SocketAddress socketAddress = new InetSocketAddress(proxyConf.name, proxyConf.port);
             proxy = new Proxy(Type.HTTP, socketAddress);
 
-            // Considering only the presence of a username, implying there's a
-            // pwd. Is it right?
+            // Considering only the presence of a username, implying there's a pwd. Is it right?
             final String userName = proxyConf.getUserName();
             if (StringUtils.isNotEmpty(userName)) {
                 final String passwd = proxyConf.getPassword();
 
-                LOGGER.finest("Proxy authentication found: username=" + userName + ", password empty? "
-                        + StringUtils.isEmpty(passwd));
+                LOGGER.finest("Proxy authentication found: username=" + userName
+                        + ", password empty? " + StringUtils.isEmpty(passwd));
 
-                // Will impact the whole server instance. May not be a good idea
-                // :-/.
+                // Will impact the whole server instance. May not be a good idea :-/.
                 Authenticator.setDefault(new Authenticator() {
                     @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
