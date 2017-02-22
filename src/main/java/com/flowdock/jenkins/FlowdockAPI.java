@@ -58,7 +58,7 @@ public class FlowdockAPI {
         try {
             // create connection
             url = new URL(flowdockUrl);
-            connection = (HttpURLConnection)url.openConnection(getProxy());
+            connection = getConnection(url);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             connection.setRequestProperty("Content-Length", String.valueOf(data.getBytes().length));
@@ -97,6 +97,10 @@ public class FlowdockAPI {
             throw new FlowdockException("IOException in connecting to Flowdock: " + ex.getMessage());
         }
     }
+
+	protected HttpURLConnection getConnection(URL url) throws IOException {
+		return (HttpURLConnection)url.openConnection(getProxy());
+	}
 
     /**
      * Returns the Jenkins proxy configuration. {@link Proxy#NO_PROXY} if none configured.

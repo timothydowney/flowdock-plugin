@@ -29,6 +29,7 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
 public class FlowdockNotifier extends Notifier {
@@ -75,7 +76,8 @@ public class FlowdockNotifier extends Notifier {
 		// set notification map with defaults of true
 		this.notifyMap = new HashMap<BuildResult, Boolean>();
 
-		// Default value for notifications is always true
+		// Default value for notifications is always true since we'd rather over-notify
+		// than under
 		for (BuildResult result : BuildResult.values()) {
 			notifyMap.put(result, true);
 		}
@@ -181,8 +183,8 @@ public class FlowdockNotifier extends Notifier {
 	protected void notifyFlowdock(AbstractBuild build, BuildResult buildResult, BuildListener listener) {
 		PrintStream logger = listener.getLogger();
 		try {
-			FlowdockAPI api = new FlowdockAPI(getDescriptor().apiUrl(), flowToken);
-			TeamInboxMessage msg = TeamInboxMessage.fromBuild(build, buildResult, listener);
+			FlowdockAPI api = getFlowdockAPI();
+			TeamInboxMessage msg = teamInboxMessageFromBuild(build, buildResult, listener);
 
 			EnvVars vars = build.getEnvironment(listener);
 
@@ -200,7 +202,7 @@ public class FlowdockNotifier extends Notifier {
 			listener.getLogger().println("Flowdock: Team Inbox notification sent successfully");
 
 			if ((build.getResult() != Result.SUCCESS || buildResult == BuildResult.FIXED) && chatNotification) {
-				ChatMessage chatMsg = ChatMessage.fromBuild(build, buildResult, listener);
+				ChatMessage chatMsg = chatMessageFromBuild(build, buildResult, listener);
 
 				if (StringUtils.isNotBlank(content)) {
 					chatMsg.setContent(vars.expand(content));
@@ -227,6 +229,19 @@ public class FlowdockNotifier extends Notifier {
 			logger.println("Flowdock: " + ex.getMessage());
 		}
 
+	}
+
+	protected FlowdockAPI getFlowdockAPI() {
+		return new FlowdockAPI(getDescriptor().apiUrl(), flowToken);
+	}
+
+	protected ChatMessage chatMessageFromBuild(AbstractBuild build, BuildResult buildResult, BuildListener listener) {
+		return ChatMessage.fromBuild(Jenkins.getInstance(), build, buildResult, listener);
+	}
+
+	protected TeamInboxMessage teamInboxMessageFromBuild(AbstractBuild build, BuildResult buildResult,
+			BuildListener listener) throws IOException, InterruptedException {
+		return TeamInboxMessage.fromBuild(Jenkins.getInstance(), build, buildResult, listener);
 	}
 
 	@Override

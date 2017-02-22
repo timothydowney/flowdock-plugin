@@ -10,6 +10,8 @@ import hudson.model.Hudson;
 import hudson.model.Result;
 import hudson.scm.ChangeLogSet;
 import hudson.scm.ChangeLogSet.Entry;
+import jenkins.model.Jenkins;
+
 import java.io.UnsupportedEncodingException;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
@@ -73,7 +75,7 @@ public class TeamInboxMessage extends FlowdockMessage {
         return postData.toString();
     }
 
-    public static TeamInboxMessage fromBuild(AbstractBuild build, BuildResult buildResult, BuildListener listener) throws IOException, InterruptedException {
+    public static TeamInboxMessage fromBuild(Jenkins jenkins, AbstractBuild build, BuildResult buildResult, BuildListener listener) throws IOException, InterruptedException {
         TeamInboxMessage msg = new TeamInboxMessage();
 
         String projectName = "";
@@ -89,7 +91,7 @@ public class TeamInboxMessage extends FlowdockMessage {
         String buildNo = build.getDisplayName().replaceAll("#", "");
         msg.setSubject(projectName + " build " + buildNo + configuration + " " + buildResult.getHumanResult());
 
-        String rootUrl = Hudson.getInstance().getRootUrl();
+        String rootUrl = jenkins.getRootUrl();
         String buildLink = (rootUrl == null) ? null : rootUrl + build.getUrl();
         if(buildLink != null) msg.setLink(buildLink);
 

@@ -1,11 +1,11 @@
 package com.flowdock.jenkins;
 
+import java.io.UnsupportedEncodingException;
+
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
-import hudson.model.Hudson;
 import hudson.model.Result;
-
-import java.io.UnsupportedEncodingException;
+import jenkins.model.Jenkins;
 
 public class ChatMessage extends FlowdockMessage {
     protected String externalUserName;
@@ -26,7 +26,7 @@ public class ChatMessage extends FlowdockMessage {
         return postData.toString();
     }
 
-    public static ChatMessage fromBuild(AbstractBuild build, BuildResult buildResult, BuildListener listener) {
+    public static ChatMessage fromBuild(Jenkins jenkins, AbstractBuild build, BuildResult buildResult, BuildListener listener) {
         ChatMessage msg = new ChatMessage();
         StringBuilder content = new StringBuilder();
 
@@ -39,7 +39,7 @@ public class ChatMessage extends FlowdockMessage {
             projectName = build.getProject().getDisplayName();
         }
 
-        String rootUrl = Hudson.getInstance().getRootUrl();
+        String rootUrl = jenkins.getRootUrl();
         String buildLink = (rootUrl == null) ? null : rootUrl + build.getUrl();
         boolean hasLink = buildLink != null;
         String buildNo = build.getDisplayName().replaceAll("#", "");
