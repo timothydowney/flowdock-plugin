@@ -168,11 +168,10 @@ public class FlowdockNotifier extends Notifier {
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
         BuildResult buildResult = BuildResult.fromBuild(build);
-        if (shouldNotify(buildResult)) {
+        if(shouldNotify(buildResult)) {
             notifyFlowdock(build, buildResult, listener);
         } else {
-            listener.getLogger()
-                    .println("No Flowdock notification configured for build status: " + buildResult.toString());
+            listener.getLogger().println("No Flowdock notification configured for build status: " + buildResult.toString());
         }
         return true;
     }
@@ -215,17 +214,17 @@ public class FlowdockNotifier extends Notifier {
             }
         }
 
-        catch (IOException ex) {
+        catch(IOException ex) {
             logger.println("Flowdock: failed to get variables from build");
             logger.println("Flowdock: " + ex.getMessage());
         }
 
-        catch (InterruptedException ex) {
+        catch(InterruptedException ex) {
             logger.println("Flowdock: failed to get variables from build");
             logger.println("Flowdock: " + ex.getMessage());
         }
 
-        catch (FlowdockException ex) {
+        catch(FlowdockException ex) {
             logger.println("Flowdock: failed to send notification");
             logger.println("Flowdock: " + ex.getMessage());
         }
@@ -247,7 +246,7 @@ public class FlowdockNotifier extends Notifier {
 
     @Override
     public DescriptorImpl getDescriptor() {
-        return (DescriptorImpl) super.getDescriptor();
+        return (DescriptorImpl)super.getDescriptor();
     }
 
     @Extension
@@ -264,7 +263,7 @@ public class FlowdockNotifier extends Notifier {
         }
 
         public FormValidation doTestConnection(@QueryParameter("flowToken") final String flowToken,
-                @QueryParameter("notificationTags") final String notificationTags) {
+            @QueryParameter("notificationTags") final String notificationTags) {
             try {
                 FlowdockAPI api = new FlowdockAPI(apiUrl(), flowToken);
                 ChatMessage testMsg = new ChatMessage();
@@ -272,7 +271,7 @@ public class FlowdockNotifier extends Notifier {
                 testMsg.setContent("Your plugin is ready!");
                 api.pushChatMessage(testMsg);
                 return FormValidation.ok("Success! Flowdock plugin can send notifications to your flow.");
-            } catch (FlowdockException ex) {
+            } catch(FlowdockException ex) {
                 return FormValidation.error(ex.getMessage());
             }
         }
