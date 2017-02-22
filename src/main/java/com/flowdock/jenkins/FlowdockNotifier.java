@@ -34,317 +34,318 @@ import net.sf.json.JSONObject;
 
 public class FlowdockNotifier extends Notifier {
 
-	private final String flowToken;
+    private final String flowToken;
 
-	private String notificationTags;
-	private boolean chatNotification;
+    private String notificationTags;
+    private boolean chatNotification;
 
-	private final Map<BuildResult, Boolean> notifyMap;
+    private final Map<BuildResult, Boolean> notifyMap;
 
-	private String subject;
-	private String content;
+    private String subject;
+    private String content;
 
-	@Deprecated
-	@Restricted(NoExternalUse.class)
-	public FlowdockNotifier(String flowToken, String notificationTags, String chatNotification, String notifySuccess,
-			String notifyFailure, String notifyFixed, String notifyUnstable, String notifyAborted,
-			String notifyNotBuilt) {
-		// Call the new constructor and get all the defaults in place
-		this(flowToken);
+    @Deprecated
+    @Restricted(NoExternalUse.class)
+    public FlowdockNotifier(String flowToken, String notificationTags, String chatNotification, String notifySuccess,
+            String notifyFailure, String notifyFixed, String notifyUnstable, String notifyAborted,
+            String notifyNotBuilt) {
+        // Call the new constructor and get all the defaults in place
+        this(flowToken);
 
-		this.notificationTags = notificationTags;
+        this.notificationTags = notificationTags;
 
-		// Deprecated API is treating the notification flags as strings, not
-		// boolean so we need
-		// this to preserve backwards compatibility
-		notifyMap.put(BuildResult.SUCCESS, notifySuccess != null && notifySuccess.equals("true"));
-		notifyMap.put(BuildResult.FAILURE, notifyFailure != null && notifyFailure.equals("true"));
-		notifyMap.put(BuildResult.FIXED, notifyFixed != null && notifyFixed.equals("true"));
-		notifyMap.put(BuildResult.UNSTABLE, notifyUnstable != null && notifyUnstable.equals("true"));
-		notifyMap.put(BuildResult.ABORTED, notifyAborted != null && notifyAborted.equals("true"));
-		notifyMap.put(BuildResult.NOT_BUILT, notifyNotBuilt != null && notifyNotBuilt.equals("true"));
-	}
+        // Deprecated API is treating the notification flags as strings, not
+        // boolean so we need
+        // this to preserve backwards compatibility
+        notifyMap.put(BuildResult.SUCCESS, notifySuccess != null && notifySuccess.equals("true"));
+        notifyMap.put(BuildResult.FAILURE, notifyFailure != null && notifyFailure.equals("true"));
+        notifyMap.put(BuildResult.FIXED, notifyFixed != null && notifyFixed.equals("true"));
+        notifyMap.put(BuildResult.UNSTABLE, notifyUnstable != null && notifyUnstable.equals("true"));
+        notifyMap.put(BuildResult.ABORTED, notifyAborted != null && notifyAborted.equals("true"));
+        notifyMap.put(BuildResult.NOT_BUILT, notifyNotBuilt != null && notifyNotBuilt.equals("true"));
+    }
 
-	// Fields in config.jelly must match the parameter names in the
-	// "DataBoundConstructor"
-	@DataBoundConstructor
-	public FlowdockNotifier(String flowToken) {
-		this.flowToken = flowToken;
+    // Fields in config.jelly must match the parameter names in the
+    // "DataBoundConstructor"
+    @DataBoundConstructor
+    public FlowdockNotifier(String flowToken) {
+        this.flowToken = flowToken;
 
-		this.chatNotification = true;
+        this.chatNotification = true;
 
-		// set notification map with defaults of true
-		this.notifyMap = new HashMap<BuildResult, Boolean>();
+        // set notification map with defaults of true
+        this.notifyMap = new HashMap<BuildResult, Boolean>();
 
-		// Default value for notifications is always true since we'd rather over-notify
-		// than under
-		for (BuildResult result : BuildResult.values()) {
-			notifyMap.put(result, true);
-		}
-	}
+        // Default value for notifications is always true since we'd rather
+        // over-notify
+        // than under
+        for (BuildResult result : BuildResult.values()) {
+            notifyMap.put(result, true);
+        }
+    }
 
-	public String getFlowToken() {
-		return flowToken;
-	}
+    public String getFlowToken() {
+        return flowToken;
+    }
 
-	public String getNotificationTags() {
-		return notificationTags;
-	}
+    public String getNotificationTags() {
+        return notificationTags;
+    }
 
-	public boolean getChatNotification() {
-		return chatNotification;
-	}
+    public boolean getChatNotification() {
+        return chatNotification;
+    }
 
-	/**
-	 * Returns true if notifications should be performed on success.
-	 * Default value is true.
-	 * 
-	 * @return True if notifications should be performed on success.
-	 */
-	public boolean getNotifySuccess() {
-		return notifyMap.get(BuildResult.SUCCESS);
-	}
+    /**
+     * Returns true if notifications should be performed on success. Default
+     * value is true.
+     * 
+     * @return True if notifications should be performed on success.
+     */
+    public boolean getNotifySuccess() {
+        return notifyMap.get(BuildResult.SUCCESS);
+    }
 
-	/**
-	 * Returns true if notifications should be performed on failure.
-	 * Default value is true.
-	 * 
-	 * @return True if notifications should be performed on failure.
-	 */
-	public boolean getNotifyFailure() {
-		return notifyMap.get(BuildResult.FAILURE);
-	}
+    /**
+     * Returns true if notifications should be performed on failure. Default
+     * value is true.
+     * 
+     * @return True if notifications should be performed on failure.
+     */
+    public boolean getNotifyFailure() {
+        return notifyMap.get(BuildResult.FAILURE);
+    }
 
-	/**
-	 * Returns true if notifications should be performed on fixed builds.
-	 * Default value is true.
-	 * 
-	 * @return True if notifications should be performed on fixed builds.
-	 */
-	public boolean getNotifyFixed() {
-		return notifyMap.get(BuildResult.FIXED);
-	}
+    /**
+     * Returns true if notifications should be performed on fixed builds.
+     * Default value is true.
+     * 
+     * @return True if notifications should be performed on fixed builds.
+     */
+    public boolean getNotifyFixed() {
+        return notifyMap.get(BuildResult.FIXED);
+    }
 
-	/**
-	 * Returns true if notifications should be performed on unstable builds.
-	 * Default value is true.
-	 * 
-	 * @return True if notifications should be performed on unstable builds.
-	 */
-	public boolean getNotifyUnstable() {
-		return notifyMap.get(BuildResult.UNSTABLE);
-	}
+    /**
+     * Returns true if notifications should be performed on unstable builds.
+     * Default value is true.
+     * 
+     * @return True if notifications should be performed on unstable builds.
+     */
+    public boolean getNotifyUnstable() {
+        return notifyMap.get(BuildResult.UNSTABLE);
+    }
 
-	/**
-	 * Returns true if notifications should be performed on aborted builds.
-	 * Default value is true.
-	 * 
-	 * @return True if notifications should be performed on aborted builds.
-	 */
-	public boolean getNotifyAborted() {
-		return notifyMap.get(BuildResult.ABORTED);
-	}
+    /**
+     * Returns true if notifications should be performed on aborted builds.
+     * Default value is true.
+     * 
+     * @return True if notifications should be performed on aborted builds.
+     */
+    public boolean getNotifyAborted() {
+        return notifyMap.get(BuildResult.ABORTED);
+    }
 
-	/**
-	 * Returns true if notifications should be performed on not built.
-	 * Default value is true.
-	 * 
-	 * @return True if notifications should be performed on not built.
-	 */
-	public boolean getNotifyNotBuilt() {
-		return notifyMap.get(BuildResult.NOT_BUILT);
-	}
+    /**
+     * Returns true if notifications should be performed on not built. Default
+     * value is true.
+     * 
+     * @return True if notifications should be performed on not built.
+     */
+    public boolean getNotifyNotBuilt() {
+        return notifyMap.get(BuildResult.NOT_BUILT);
+    }
 
-	public BuildStepMonitor getRequiredMonitorService() {
-		return BuildStepMonitor.NONE;
-	}
+    public BuildStepMonitor getRequiredMonitorService() {
+        return BuildStepMonitor.NONE;
+    }
 
-	@Override
-	public boolean needsToRunAfterFinalized() {
-		return true;
-	}
+    @Override
+    public boolean needsToRunAfterFinalized() {
+        return true;
+    }
 
-	@Override
-	public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
-		BuildResult buildResult = BuildResult.fromBuild(build);
-		if (shouldNotify(buildResult)) {
-			notifyFlowdock(build, buildResult, listener);
-		} else {
-			listener.getLogger()
-					.println("No Flowdock notification configured for build status: " + buildResult.toString());
-		}
-		return true;
-	}
+    @Override
+    public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
+        BuildResult buildResult = BuildResult.fromBuild(build);
+        if (shouldNotify(buildResult)) {
+            notifyFlowdock(build, buildResult, listener);
+        } else {
+            listener.getLogger()
+                    .println("No Flowdock notification configured for build status: " + buildResult.toString());
+        }
+        return true;
+    }
 
-	public boolean shouldNotify(BuildResult buildResult) {
-		return notifyMap.get(buildResult);
-	}
+    public boolean shouldNotify(BuildResult buildResult) {
+        return notifyMap.get(buildResult);
+    }
 
-	protected void notifyFlowdock(AbstractBuild build, BuildResult buildResult, BuildListener listener) {
-		PrintStream logger = listener.getLogger();
-		try {
-			FlowdockAPI api = getFlowdockAPI();
-			TeamInboxMessage msg = teamInboxMessageFromBuild(build, buildResult, listener);
+    protected void notifyFlowdock(AbstractBuild build, BuildResult buildResult, BuildListener listener) {
+        PrintStream logger = listener.getLogger();
+        try {
+            FlowdockAPI api = getFlowdockAPI();
+            TeamInboxMessage msg = teamInboxMessageFromBuild(build, buildResult, listener);
 
-			EnvVars vars = build.getEnvironment(listener);
+            EnvVars vars = build.getEnvironment(listener);
 
-			// Check for overrides for both content and subject
-			if (StringUtils.isNotBlank(content)) {
-				msg.setContent(vars.expand(content));
-			}
+            // Check for overrides for both content and subject
+            if (StringUtils.isNotBlank(content)) {
+                msg.setContent(vars.expand(content));
+            }
 
-			if (StringUtils.isNotBlank(subject)) {
-				msg.setSubject(vars.expand(subject));
-			}
+            if (StringUtils.isNotBlank(subject)) {
+                msg.setSubject(vars.expand(subject));
+            }
 
-			msg.setTags(vars.expand(notificationTags));
-			api.pushTeamInboxMessage(msg);
-			listener.getLogger().println("Flowdock: Team Inbox notification sent successfully");
+            msg.setTags(vars.expand(notificationTags));
+            api.pushTeamInboxMessage(msg);
+            listener.getLogger().println("Flowdock: Team Inbox notification sent successfully");
 
-			if ((build.getResult() != Result.SUCCESS || buildResult == BuildResult.FIXED) && chatNotification) {
-				ChatMessage chatMsg = chatMessageFromBuild(build, buildResult, listener);
+            if ((build.getResult() != Result.SUCCESS || buildResult == BuildResult.FIXED) && chatNotification) {
+                ChatMessage chatMsg = chatMessageFromBuild(build, buildResult, listener);
 
-				if (StringUtils.isNotBlank(content)) {
-					chatMsg.setContent(vars.expand(content));
-				}
+                if (StringUtils.isNotBlank(content)) {
+                    chatMsg.setContent(vars.expand(content));
+                }
 
-				chatMsg.setTags(vars.expand(notificationTags));
-				api.pushChatMessage(chatMsg);
-				logger.println("Flowdock: Chat notification sent successfully");
-			}
-		}
+                chatMsg.setTags(vars.expand(notificationTags));
+                api.pushChatMessage(chatMsg);
+                logger.println("Flowdock: Chat notification sent successfully");
+            }
+        }
 
-		catch (IOException ex) {
-			logger.println("Flowdock: failed to get variables from build");
-			logger.println("Flowdock: " + ex.getMessage());
-		}
+        catch (IOException ex) {
+            logger.println("Flowdock: failed to get variables from build");
+            logger.println("Flowdock: " + ex.getMessage());
+        }
 
-		catch (InterruptedException ex) {
-			logger.println("Flowdock: failed to get variables from build");
-			logger.println("Flowdock: " + ex.getMessage());
-		}
+        catch (InterruptedException ex) {
+            logger.println("Flowdock: failed to get variables from build");
+            logger.println("Flowdock: " + ex.getMessage());
+        }
 
-		catch (FlowdockException ex) {
-			logger.println("Flowdock: failed to send notification");
-			logger.println("Flowdock: " + ex.getMessage());
-		}
+        catch (FlowdockException ex) {
+            logger.println("Flowdock: failed to send notification");
+            logger.println("Flowdock: " + ex.getMessage());
+        }
 
-	}
+    }
 
-	protected FlowdockAPI getFlowdockAPI() {
-		return new FlowdockAPI(getDescriptor().apiUrl(), flowToken);
-	}
+    protected FlowdockAPI getFlowdockAPI() {
+        return new FlowdockAPI(getDescriptor().apiUrl(), flowToken);
+    }
 
-	protected ChatMessage chatMessageFromBuild(AbstractBuild build, BuildResult buildResult, BuildListener listener) {
-		return ChatMessage.fromBuild(Jenkins.getInstance(), build, buildResult, listener);
-	}
+    protected ChatMessage chatMessageFromBuild(AbstractBuild build, BuildResult buildResult, BuildListener listener) {
+        return ChatMessage.fromBuild(Jenkins.getInstance(), build, buildResult, listener);
+    }
 
-	protected TeamInboxMessage teamInboxMessageFromBuild(AbstractBuild build, BuildResult buildResult,
-			BuildListener listener) throws IOException, InterruptedException {
-		return TeamInboxMessage.fromBuild(Jenkins.getInstance(), build, buildResult, listener);
-	}
+    protected TeamInboxMessage teamInboxMessageFromBuild(AbstractBuild build, BuildResult buildResult,
+            BuildListener listener) throws IOException, InterruptedException {
+        return TeamInboxMessage.fromBuild(Jenkins.getInstance(), build, buildResult, listener);
+    }
 
-	@Override
-	public DescriptorImpl getDescriptor() {
-		return (DescriptorImpl) super.getDescriptor();
-	}
+    @Override
+    public DescriptorImpl getDescriptor() {
+        return (DescriptorImpl) super.getDescriptor();
+    }
 
-	@Extension
-	public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+    @Extension
+    public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
-		private String apiUrl = "https://api.flowdock.com";
+        private String apiUrl = "https://api.flowdock.com";
 
-		public boolean isApplicable(Class<? extends AbstractProject> aClass) {
-			return true;
-		}
+        public boolean isApplicable(Class<? extends AbstractProject> aClass) {
+            return true;
+        }
 
-		public String getDisplayName() {
-			return "Flowdock notification";
-		}
+        public String getDisplayName() {
+            return "Flowdock notification";
+        }
 
-		public FormValidation doTestConnection(@QueryParameter("flowToken") final String flowToken,
-				@QueryParameter("notificationTags") final String notificationTags) {
-			try {
-				FlowdockAPI api = new FlowdockAPI(apiUrl(), flowToken);
-				ChatMessage testMsg = new ChatMessage();
-				testMsg.setTags(notificationTags);
-				testMsg.setContent("Your plugin is ready!");
-				api.pushChatMessage(testMsg);
-				return FormValidation.ok("Success! Flowdock plugin can send notifications to your flow.");
-			} catch (FlowdockException ex) {
-				return FormValidation.error(ex.getMessage());
-			}
-		}
+        public FormValidation doTestConnection(@QueryParameter("flowToken") final String flowToken,
+                @QueryParameter("notificationTags") final String notificationTags) {
+            try {
+                FlowdockAPI api = new FlowdockAPI(apiUrl(), flowToken);
+                ChatMessage testMsg = new ChatMessage();
+                testMsg.setTags(notificationTags);
+                testMsg.setContent("Your plugin is ready!");
+                api.pushChatMessage(testMsg);
+                return FormValidation.ok("Success! Flowdock plugin can send notifications to your flow.");
+            } catch (FlowdockException ex) {
+                return FormValidation.error(ex.getMessage());
+            }
+        }
 
-		@Override
-		public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
-			apiUrl = formData.getString("apiUrl");
-			save();
-			return super.configure(req, formData);
-		}
+        @Override
+        public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
+            apiUrl = formData.getString("apiUrl");
+            save();
+            return super.configure(req, formData);
+        }
 
-		public String apiUrl() {
-			return apiUrl;
-		}
-	}
+        public String apiUrl() {
+            return apiUrl;
+        }
+    }
 
-	@CheckForNull
-	public String getSubject() {
-		return subject;
-	}
+    @CheckForNull
+    public String getSubject() {
+        return subject;
+    }
 
-	@CheckForNull
-	public String getContent() {
-		return content;
-	}
+    @CheckForNull
+    public String getContent() {
+        return content;
+    }
 
-	@DataBoundSetter
-	public void setSubject(String subject) {
-		this.subject = StringUtils.isNotBlank(subject) ? subject : null;
-	}
+    @DataBoundSetter
+    public void setSubject(String subject) {
+        this.subject = StringUtils.isNotBlank(subject) ? subject : null;
+    }
 
-	@DataBoundSetter
-	public void setContent(String content) {
-		this.content = StringUtils.isNotBlank(content) ? content : null;
-	}
+    @DataBoundSetter
+    public void setContent(String content) {
+        this.content = StringUtils.isNotBlank(content) ? content : null;
+    }
 
-	@DataBoundSetter
-	public void setNotifySuccess(boolean notifySuccess) {
-		notifyMap.put(BuildResult.SUCCESS, notifySuccess);
-	}
+    @DataBoundSetter
+    public void setNotifySuccess(boolean notifySuccess) {
+        notifyMap.put(BuildResult.SUCCESS, notifySuccess);
+    }
 
-	@DataBoundSetter
-	public void setNotifyFailure(boolean notifyFailure) {
-		notifyMap.put(BuildResult.FAILURE, notifyFailure);
-	}
+    @DataBoundSetter
+    public void setNotifyFailure(boolean notifyFailure) {
+        notifyMap.put(BuildResult.FAILURE, notifyFailure);
+    }
 
-	@DataBoundSetter
-	public void setNotifyFixed(boolean notifyFixed) {
-		notifyMap.put(BuildResult.FIXED, notifyFixed);
-	}
+    @DataBoundSetter
+    public void setNotifyFixed(boolean notifyFixed) {
+        notifyMap.put(BuildResult.FIXED, notifyFixed);
+    }
 
-	@DataBoundSetter
-	public void setNotifyUnstable(boolean notifyUnstable) {
-		notifyMap.put(BuildResult.UNSTABLE, notifyUnstable);
-	}
+    @DataBoundSetter
+    public void setNotifyUnstable(boolean notifyUnstable) {
+        notifyMap.put(BuildResult.UNSTABLE, notifyUnstable);
+    }
 
-	@DataBoundSetter
-	public void setNotifyAborted(boolean notifyAborted) {
-		notifyMap.put(BuildResult.ABORTED, notifyAborted);
-	}
+    @DataBoundSetter
+    public void setNotifyAborted(boolean notifyAborted) {
+        notifyMap.put(BuildResult.ABORTED, notifyAborted);
+    }
 
-	@DataBoundSetter
-	public void setNotifyNotBuilt(boolean notifyNotBuilt) {
-		notifyMap.put(BuildResult.NOT_BUILT, notifyNotBuilt);
-	}
+    @DataBoundSetter
+    public void setNotifyNotBuilt(boolean notifyNotBuilt) {
+        notifyMap.put(BuildResult.NOT_BUILT, notifyNotBuilt);
+    }
 
-	@DataBoundSetter
-	public void setNotificationTags(String notificationTags) {
-		this.notificationTags = notificationTags;
-	}
+    @DataBoundSetter
+    public void setNotificationTags(String notificationTags) {
+        this.notificationTags = notificationTags;
+    }
 
-	@DataBoundSetter
-	public void setChatNotification(boolean chatNotification) {
-		this.chatNotification = chatNotification;
-	}
+    @DataBoundSetter
+    public void setChatNotification(boolean chatNotification) {
+        this.chatNotification = chatNotification;
+    }
 }
